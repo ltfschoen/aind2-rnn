@@ -4,6 +4,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 import keras
+import re
 
 
 ### DONE: fill out the function below that transforms the input series 
@@ -56,12 +57,44 @@ def build_part1_RNN(step_size, window_size):
     return model
 
 
-### TODO: list all unique characters in the text and remove any non-english ones
+### DONE: list all unique characters in the text and remove any non-english ones
 def clean_text(text):
     # find all unique characters in the text
-
+    unique = ''.join(list(set(text)))
+    print('unique before cleanse: ', unique)
 
     # remove as many non-english characters and character sequences as you can 
+
+    # with the exception of necessary punctuation marks
+
+    # testing test
+    # text = 'èéà&%$*@â\'[](){}⟨⟩:,-!.‹›«»?‘’“”\'\'";\\/ -- \"test;\" test. test? \'test\'"'
+
+    # A - DONE replace punctuation i.e.: ‘ --> '
+    # B - DONE replace punctuation i.e.: “ --> "
+    # C - DONE remove non-english chars i.e.: èéà&%$*@â\
+    # D - DONE remove non-english chars escaped i.e.: \/
+    # E - DONE remove undesired punctuation i.e.: [](){}⟨⟩--‹›«»
+    # F - DONE retain desired punctuation escaped before/after word i.e.: \'\"
+    # retain desired punctuation after word before space i.e.: ,!.?;
+    # retain desired punctuation between non-space characters i.e.: -
+
+    text = text.replace("“", "\"").replace("”", "\"")
+    text = text.replace("‘", "\'").replace("’", "\'")
+    text = re.sub(r'[^a-zA-Z!.?\-,:;\"\']', ' ', text)
+    text = text.replace("--", "")
+    # remove fullstops just infront of a word
+    text = re.sub(r'!.\b(?!\w)', ' ', text)
+    # remove other fullstops not immediately before/after word
+    text = re.sub(r'!.(?!\w)', ' ', text)
+        
+    # shorten any extra dead space created above
+    text = text.replace('  ',' ')
+
+    unique = ''.join(list(set(text)))
+    print('unique after cleanse: ', unique)
+
+    return text
 
 
 ### TODO: fill out the function below that transforms the input text and window-size into a set of input/output pairs for use with our RNN model
