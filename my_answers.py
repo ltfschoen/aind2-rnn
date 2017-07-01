@@ -14,6 +14,7 @@ def window_transform_series(series,window_size):
     X = []
     y = []
     
+    # iteratively slide the window-size over the input series to generate input/output pairs
     for i in range(0, len(series) - window_size):
         X.append(series[i : i + window_size])
         y.append(series[i + window_size])   
@@ -38,6 +39,7 @@ def build_part1_RNN(step_size, window_size):
     # layer 1 of Sequential model uses LSTM module with:
     # - 5 hidden units
     # - input_shape = (window_size,1))
+    # - input_shape must be specified in the first layer, inferred by remainder
     model = Sequential()
     model.add(LSTM(5, input_shape=(window_size, 1)))
 
@@ -50,7 +52,7 @@ def build_part1_RNN(step_size, window_size):
                                          epsilon=1e-08,
                                          decay=0.0)
 
-    # compile the model
+    # compile the model using mean_squared_error loss function for regression
     model.compile(loss='mean_squared_error', 
                   optimizer=optimizer)
 
@@ -78,16 +80,18 @@ def clean_text(text):
     # F - DONE retain desired punctuation escaped before/after word i.e.: \'\"
     # retain desired punctuation after word before space i.e.: ,!.?;
     # retain desired punctuation between non-space characters i.e.: -
-
     text = text.replace("“", "\"").replace("”", "\"")
     text = text.replace("‘", "\'").replace("’", "\'")
+    # do not remove characters (denoted with !) including (where \ is the 
+    # escape prefix):
+    #   .?\-,:;\"\'
     text = re.sub(r'[^a-zA-Z!.?\-,:;\"\']', ' ', text)
+    # remove double dashes
     text = text.replace("--", "")
     # remove fullstops just infront of a word
     text = re.sub(r'!.\b(?!\w)', ' ', text)
     # remove other fullstops not immediately before/after word
     text = re.sub(r'!.(?!\w)', ' ', text)
-        
     # shorten any extra dead space created above
     text = text.replace('  ',' ')
 
@@ -97,12 +101,15 @@ def clean_text(text):
     return text
 
 
-### TODO: fill out the function below that transforms the input text and window-size into a set of input/output pairs for use with our RNN model
+### DONE: fill out the function below that transforms the input text and window-size into a set of input/output pairs for use with our RNN model
 def window_transform_text(text,window_size,step_size):
     # containers for input/output pairs
     inputs = []
     outputs = []
 
+    # iteratively slide the window-size over the input series 
+    # to generate input/output pairs with each move being of 
+    # length step_size
     for i in range(0, len(text) - window_size, step_size):
         inputs.append(text[i : i + window_size])
         outputs.append(text[i + window_size])
