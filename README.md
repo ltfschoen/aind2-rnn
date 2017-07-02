@@ -1,5 +1,9 @@
 # Recurrent Neural Networks course project: time series prediction and text generation
 
+## Run the app
+
+`jupyter notebook --NotebookApp.iopub_data_rate_limit=100000000 RNN_project.ipynb`
+
 ## Accelerating the Training Process 
 
 If your code is taking too long to run, you will need to either reduce the complexity of your chosen RNN architecture or switch to running your code on a GPU.  If you'd like to use a GPU, you have two options:
